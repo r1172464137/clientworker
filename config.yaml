@@ -1,8 +1,8 @@
 name: ClientWorker Docs Config
 hotpatch:
-    - https://raw.githubusercontent.com/ChenYFan/ClientWorker/gh-pages/cw.js
+    - https://raw.githubusercontent.com/r1172464137/clientworker/main/cw.js
 hotconfig:
-    - https://raw.githubusercontent.com/ChenYFan/ClientWorker/gh-pages/config.yaml
+    - https://raw.githubusercontent.com/r1172464137/clientworker/main/config.yaml
 cleaninterval: 1000*20
 catch_rules: 
     - rule: _ 
