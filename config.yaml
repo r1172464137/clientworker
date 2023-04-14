@@ -12,7 +12,7 @@ catch_rules: #转换规则
 
         - search: _ 
           replace: 
-            - _ #保留原始请求
+#             - _ #保留原始请求
             - drive.518126.xyz:8443 #ip镜像，需要ip HTTPS
 
         - search: \.(js|css)
