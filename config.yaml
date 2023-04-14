@@ -4,148 +4,39 @@ hotpatch:
 hotconfig:
     - https://raw.githubusercontent.com/r1172464137/clientworker/main/config.yaml
 cleaninterval: 1000*20
-catch_rules: 
-    - rule: _ 
-      transform_rules: 
-            - search: \#.*
-              searchin: url 
-              replace: ''
-            - search: \?.* 
-              replace: '' 
-            - search: ([^\/.]+)\/index(|\.html)$ 
-              action: redirect
-              redirect: 
-                to: $1/
-            - search: \/google$
-              action: redirect
-              redirect: 
-                url: https://google.com 
-                status: 301
+catch_rules: #转换规则
+    - rule: _ #ClientWorker语法糖，匹配当前域，返回一个域名带端口
+      transform_rules: #转换规则，最上面的优先最高
+        - search: \#.* #在发送请求时匹配#后内容并移除
+          replace: ''
 
-            - search: \/time$
-              action: script
-              script: 
-                name: gettime
-                skip: true
-            - search: \/timefunction$
-              action: script
-              script: 
-                function: ()=>{return {fetched:true,response:new Response(new Date().toString())}}
-                skip: true
-                
-            - search: \/([^\/.]+)$ 
-              action: redirect
-              redirect: 
-                to: /$1.html
-                status: 301
-            
-            - search: ([^\/.]+)\/$ 
-              replace: $1/index.html
-              
-              
-            
-            
-            - search: _ 
-              replace: docroot/clientworker@3.0.0-beta-1/doc/docs/.vitepress/dist
+        - search: _ 
+          replace: 
+            - _ #保留原始请求
+            - _ https://drive.518126.xyz:8443
+#             - 123.45.67.89 #ip镜像，需要ip HTTPS
+#             - 123.45.67.90:12345 #任意端口
+#             - [2606::1234]:34567 #ipv6
+#             - 1.2.3.4.nip.io:65121
 
-
-            - search: ^https\:\/\/docroot
-              replace:
-                - https://cdn.jsdelivr.net/npm
-                - https://cdn1.tianli0.top/npm
-                - https://jsd.onmicrosoft.cn/npm
-                - https://unpkg.onmicrosoft.cn
-                - https://unpkg.com
-                - https://npm.sourcegcdn.com
-              action: fetch
-              fetch:
-                status: 200
-                engine: parallel
-                preflight: false
-                timeout: 5000
-                cache:
-                  expire: 1000*10
-                  delay: 3000
-              
-            - search: \.html$ 
-              header: 
-                content-type: text/html;charset=utf-8
-                ServerProvide: ClientWorker
-
-    - rule: ^https\:\/\/npmm\/chenyfan\-os\@0\.0\.0\-r24\/(.*)\.jpg$
-      transform_rules:
-        - search: image\/webp
-          searchin: header
-          searchkey: Accept
-          replace: .webp
-          replacein: url
-          replacekey: .jpg
-    - rule: ^https\:\/\/cdn\.jsdelivr\.net\/npm\/chenyfan\-happypic\@0\.0\.33\/1\.jpg$
-      transform_rules:
-        - search: _
+        - search: \.(js|css)
           action: fetch
           fetch:
             status: 200
-            engine: crazy
+            engine: classic
             preflight: false
-            threads: 5
-            timeout: 30000
-            cache:
-              enable: true
-              expire: 1000*60
+            timeout: 5000
+            mode: cors
+            redirect: follow
+            credentials: include
 
-
-
-
-
-    - rule: ^https\:\/\/npmm\/
-      transform_rules:
-        - search: _
-          replace:
-          - https://npm.elemecdn.com/
-          - https://cdn.jsdelivr.net/npm/
-          - https://unpkg.com/
-          - https://cdn1.tianli0.top/
-          - https://jsd.onmicrosoft.cn/npm/
-          - https://unpkg.onmicrosoft.cn/
-          - https://npm.sourcegcdn.com/
         - search: _
           action: fetch
           fetch:
             status: 200
             engine: parallel
-            preflight: false
+            preflight: true
+            mode: cors
+            redirect: follow
+            credentials: include
             timeout: 5000
-            cache:
-              enable: true
-              expire: 1000*60*60*24*7
-              delay: 150
-
-    - rule: ^https\:\/\/npmm\/jquery\@3\.6\.0\/package\.json$
-      transform_rules:
-        - search: jquery
-          searchin: body
-          searchflags: g 
-          replace: fakejquery
-          replacein: body
-          replaceflags: g
-        
-          
-    - rule: .*
-      transform_rules:
-        - search: .*
-          action: fetch
-          fetch:
-            enable: true
-            engine: fetch
-            preflight: false
-        
-        - search: (^4|^5)
-          searchin: status
-          action: return
-          return: 
-            body: Error!
-            header:
-              content-type: text/plain;charset=utf-8
-              ServerProvide: ClientWorker
-            status: 503
